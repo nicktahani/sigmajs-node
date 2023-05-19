@@ -13,7 +13,7 @@ const renderer = new Sigma(multiGraph, container, {
     // minCameraRatio: 0.1,
     // maxCameraRatio: 2,
 });
-
+console.log(multiGraph)
 //layout settings
 circular.assign(multiGraph);
 const settings = forceAtlas2.inferSettings(multiGraph);
@@ -24,27 +24,37 @@ const state = {}
 
 function setHoveredNode(node) {
     if (node) {
-      state.hoveredNode = node;
-      state.hoveredNeighbors = new Set(multiGraph.neighbors(node));
+      state.hoveredNode = node; //the hovered node
+      state.hoveredNeighbors = new Set(multiGraph.neighbors(node)); //unique ids of the hovered node's neighbors
     } else {
-      state.hoveredNode = undefined;
-      state.hoveredNeighbors = undefined;
+      state.hoveredNode = null;
+      state.hoveredNeighbors = null;
     }
+
+    // console.log('state', state)
   
     // Refresh rendering:
     renderer.refresh();
 }
 
+
+
+//events
 renderer.on("enterNode", ({ node }) => {
     setHoveredNode(node);
 });
 
 renderer.on("leaveNode", () => {
-    setHoveredNode(undefined);
+    setHoveredNode(null);
 });
 
+/*
+reducers allow us to dynamically change the appearance of nodes and edges, 
+without actually changing the main graphology data
+*/
 renderer.setSetting("nodeReducer", (node, data) => {
     const res = { ...data };
+    // console.log(res)
 
     if (state.hoveredNeighbors && !state.hoveredNeighbors.has(node) && state.hoveredNode !== node) {
       res.label = "";
@@ -65,6 +75,21 @@ renderer.setSetting("edgeReducer", (edge, data) => {
     return res;
 });
 
+//colors
+const colors = {
+  'Breeding Herd': '#D8482D',
+  'Nursery': '#D8482D',
+  'Finisher': '#B30000',
+  'Boar Stud': '#BB100A',
+}
+
+multiGraph.forEachNode((node, attributes) =>
+  multiGraph.setNodeAttribute(node, "color", colors[attributes.farm_type])
+  // console.log(attributes)
+);
+
 // console.log(multiGraph.neighbors('1686'))
-// multiGraph.nodes().forEach(node => console.log(node))
 // console.log(multiGraph.order)
+// multiGraph.mapNodes((node, attr) => {
+//     console.log(attr)
+// })
