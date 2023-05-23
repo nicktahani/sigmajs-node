@@ -1,4 +1,4 @@
-import { MultiGraph } from "graphology";
+import { Graph } from "graphology";
 import { Sigma } from "sigma";
 import data from "./data/processed_data.json";
 import { circular } from "graphology-layout";
@@ -6,12 +6,13 @@ import forceAtlas2 from "graphology-layout-forceatlas2";
 
 const container = document.getElementById("sigma-container");
 
-const multiGraph = new MultiGraph();
+const multiGraph = new Graph({multi: true, allowSelfLoops: true, type: 'directed'});
 
 multiGraph.import(data);
 const renderer = new Sigma(multiGraph, container, {
     // minCameraRatio: 0.1,
     // maxCameraRatio: 2,
+    enableEdgeHoverEvents: "debounce"
 });
 console.log(multiGraph)
 //layout settings
@@ -88,8 +89,18 @@ multiGraph.forEachNode((node, attributes) =>
   // console.log(attributes)
 );
 
+
 // console.log(multiGraph.neighbors('1686'))
 // console.log(multiGraph.order)
-// multiGraph.mapNodes((node, attr) => {
-//     console.log(attr)
+// multiGraph.mapEdges((node, attr) => {
+//     console.log(attr.weight)
+// })
+
+
+// renderer.on("enterEdge", ({ edge }) => {
+//   console.log(multiGraph.getEdgeAttribute(edge, 'weight'))
+// })
+
+// multiGraph.forEachNode((node, attr) => {
+//   attr.hidden = true
 // })
